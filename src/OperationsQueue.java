@@ -1,8 +1,11 @@
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.ArrayList;;
 
 public class OperationsQueue {
     private final List<Integer> operations = new ArrayList<>();
+    private final Lock lock = new ReentrantLock(true);
 
     public void addSimulation(int totalSimulation) {
 
@@ -14,6 +17,7 @@ public class OperationsQueue {
                 operations.add(random);
             }
             System.out.println(i + ". New operation added: " + random);
+
             // add small delay to simulate the time taken for a new customer to arrive
             try {
                 Thread.sleep((int) (Math.random() * 80));
@@ -25,7 +29,13 @@ public class OperationsQueue {
     }
 
     public void add(int amount) {
-        operations.add(amount);
+        lock.lock();
+        try {
+            operations.add(amount);
+        } finally {
+            lock.unlock();
+        }
+
     }
 
     public synchronized int getNextItem() {
